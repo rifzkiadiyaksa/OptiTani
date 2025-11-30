@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptiTani - Precision Agriculture System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <nav class="bg-emerald-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-emerald-900 font-bold text-xl">
+                    🌾
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">OptiTani <span class="text-yellow-400 font-light">Pro</span></h1>
+                    <p class="text-xs text-emerald-200">AI-Powered Precision Farming</p>
+                </div>
+            </div>
+            <div class="hidden md:block text-sm text-emerald-200">
+                Supported by <b>Vertex AI</b> & <b>PT Pupuk Kujang</b>
+            </div>
+        </div>
+    </nav>
+
+    <div class="bg-gradient-to-r from-emerald-800 to-teal-700 pb-20 pt-10 px-6">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6 text-center md:text-left">
+                Kalkulator Nutrisi Tanaman
+            </h2>
+            
+            <div class="glass-panel rounded-2xl p-6 shadow-2xl border border-white/20">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                    
+                    <div class="col-span-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis Tanaman</label>
+                        <div class="relative">
+                            <select id="crop" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-sm appearance-none font-medium text-gray-800">
+                                <option value="Padi">🌾 Padi Sawah</option>
+                                <option value="Jagung">🌽 Jagung</option>
+                                <option value="Kedelai">🌱 Kedelai</option>
+                                <option value="Cabai">🌶️ Cabai Merah</option>
+                                <option value="Bawang Merah">🧅 Bawang Merah</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Luas Lahan (Ha)</label>
+                        <input type="number" id="land_size" value="1.0" step="0.1" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-sm font-medium text-gray-800" placeholder="Contoh: 1.0">
+                    </div>
+
+                    <div class="col-span-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Target Panen (Ton)</label>
+                        <input type="number" id="target" value="5.0" step="0.5" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-sm font-medium text-gray-800" placeholder="Contoh: 5.0">
+                    </div>
+
+                    <div class="col-span-1">
+                        <button onclick="calculate()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-emerald-900 font-bold p-4 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 flex justify-center items-center gap-2">
+                            <span id="btnText">Mulai Analisa</span>
+                            <svg id="loadingIcon" class="animate-spin h-5 w-5 text-emerald-900 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow -mt-10 px-6 pb-20">
+        <div id="resultSection" class="container mx-auto hidden animate-fade-in-up">
+            
+            <div id="validationBox" class="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-emerald-500 flex items-start gap-4">
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-700 shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-1">Analisa Kelayakan Target</h3>
+                    <p id="validationMsg" class="text-gray-600 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="h-8 w-1 bg-emerald-600 rounded-full"></div>
+                        <h3 class="text-xl font-bold text-gray-800">Rekomendasi Produk Kujang</h3>
+                    </div>
+                    
+                    <div id="kujangList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        </div>
+                </div>
+
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="h-8 w-1 bg-gray-400 rounded-full"></div>
+                        <h3 class="text-xl font-bold text-gray-800">Pupuk Tambahan</h3>
+                    </div>
+
+                    <div id="genericList" class="bg-white rounded-xl shadow-md p-6 border border-gray-100 space-y-4">
+                         </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 BNB Marathon Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        async function calculate() {
+            const btnText = document.getElementById('btnText');
+            const loadingIcon = document.getElementById('loadingIcon');
+            const resultSection = document.getElementById('resultSection');
+            
+            btnText.innerText = "Menganalisa...";
+            loadingIcon.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+
+            const data = {
+                crop: document.getElementById('crop').value,
+                land_size: parseFloat(document.getElementById('land_size').value),
+                target: parseFloat(document.getElementById('target').value)
+            };
+
+            try {
+                const response = await fetch('/api/calculate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+
+                // 1. Render Validation
+                const validBox = document.getElementById('validationBox');
+                const validMsg = document.getElementById('validationMsg');
+                
+                validMsg.innerText = result.validation_message;
+                
+                if (result.is_realistic) {
+                    validBox.className = "bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-emerald-500 flex items-start gap-4";
+                } else {
+                    validBox.className = "bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-orange-500 flex items-start gap-4";
+                }
+
+                // 2. Render Kujang List (Card Style)
+                const kujangContainer = document.getElementById('kujangList');
+                kujangContainer.innerHTML = "";
+                
+                if (!result.kujang_recommendations || result.kujang_recommendations.length === 0) {
+                    kujangContainer.innerHTML = "<p class='col-span-2 text-gray-400 italic'>Tidak ada rekomendasi spesifik.</p>";
+                } else {
+                    result.kujang_recommendations.forEach(item => {
+                        kujangContainer.innerHTML += `
+                            <div class="bg-white rounded-xl shadow-md p-6 border border-emerald-50 hover:shadow-lg transition hover:-translate-y-1">
+                                <div class="flex justify-between items-start mb-3">
+                                    <h4 class="font-bold text-lg text-emerald-900">${item.product_name}</h4>
+                                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded-lg">Kujang</span>
+                                </div>
+                                <div class="text-3xl font-bold text-gray-800 mb-2">
+                                    ${item.dosage_kg} <span class="text-sm font-medium text-gray-500">Kg</span>
+                                </div>
+                                <p class="text-sm text-gray-600 leading-snug bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    💡 ${item.reason}
+                                </p>
+                            </div>
+                        `;
+                    });
+                }
+
+                // 3. Render Generic List (List Style)
+                const genericContainer = document.getElementById('genericList');
+                genericContainer.innerHTML = "";
+
+                if (!result.generic_recommendations || result.generic_recommendations.length === 0) {
+                    genericContainer.innerHTML = "<p class='text-gray-400 italic text-sm text-center'>Nutrisi lengkap, tidak butuh tambahan.</p>";
+                } else {
+                    result.generic_recommendations.forEach(item => {
+                        genericContainer.innerHTML += `
+                            <div class="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                                <h4 class="font-bold text-gray-700">${item.product_name}</h4>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-gray-500 text-sm">Dosis:</span>
+                                    <span class="font-bold text-gray-800">${item.dosage_kg} Kg</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                resultSection.classList.remove('hidden');
+
+            } catch (error) {
+                alert("Terjadi kesalahan koneksi atau AI sibuk.");
+                console.error(error);
+            } finally {
+                btnText.innerText = "Mulai Analisa";
+                loadingIcon.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

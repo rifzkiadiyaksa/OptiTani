@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+google-cloud-aiplatform
+sqlalchemy
+pg8000
+requests
+pandas
+python-dotenv
+python-multipart
